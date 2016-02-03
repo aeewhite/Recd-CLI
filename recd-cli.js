@@ -65,7 +65,6 @@ var startTime, elapsedTime, timeUpdater;
 var recordingBitrate = (bitrate * 1000) / 8; // Converts from kbs to bit/s
 
 // Create file stream for saving
-console.log(filename);
 fileStream = fs.createWriteStream(filename);
 
 // Start network stream
