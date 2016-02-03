@@ -1,0 +1,13 @@
+{
+  "name": "rec'd-cli",
+  "version": "0.1.0",
+  "description": "A commandline audio stream recorder",
+  "main": "recd-cli.js",
+  "keywords": [
+    "mp3"
+  ],
+  "author": "Andrew White",
+  "dependencies": {
+    "yargs": "^3.32.0"
+  }
+}
