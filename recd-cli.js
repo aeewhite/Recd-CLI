@@ -1,23 +1,59 @@
 #!/usr/bin/env node
 
 // Argument Parsing
-var argv	= require('yargs')
+var yargs	 = require('yargs')
 				.usage('Usage: $0 -u [streamUrl] -f [filename] -b [bitrate] -d [minutes]')
 				.alias('f','file')
+				.describe('f','path to file')
 				.alias('u','url')
+				.describe('u','URL of mp3 stream')
 				.alias('b', 'bitrate')
+				.describe('b', 'bitrate in kbs')
 				.alias('d','duration')
-				.demand(['u','f','b'])
-				.argv,
-	cursor	= require('ansi')(process.stdout),
-	path 	= require('path'),
-	validUrl = require('valid-url');
+				.describe('d','Duration to record, in minutes')
+				.help('h')
+				.alias('h','help')
+				.demand(['u','f','b']),
+	cursor	 = require('ansi')(process.stdout),
+	path 	 = require('path'),
+	validUrl = require('valid-url'),
+	fs		 = require('fs'),
+	request	 = require('request');
+	throttle = require('stream-throttle');
 
 
-var url			= argv.u,
-	filename	= argv.f,
-	bitrate		= argv.b,
-	duration	= argv.d;
+var url			= yargs.argv.u,
+	filename	= yargs.argv.f,
+	bitrate		= yargs.argv.b,
+	duration	= yargs.argv.d;
+
+//
+// User Input Checking
+//
+
+if (url === true || !validUrl.isUri(url)){
+	error('Stream URL is not valid');
+}
+
+if(filename === true || filename === ""){
+	error("Filename must not be empty");
+}
+
+if(bitrate === true || isNaN(Number(bitrate))){
+	error("Bitrate must be a number");
+}
+
+if(duration && (duration === true || isNaN(Number(duration)))){
+	error("Duration must be a number");
+}
+
+filename = makeAbsoluteFilepath(filename);
+
+
+// 
+// Get set up for recording
+// 
+
 
 // Create stream objects
 var networkStream, fileStream;
@@ -28,33 +64,30 @@ var startTime, elapsedTime, timeUpdater;
 // Calculate bitrate
 var recordingBitrate = (bitrate * 1000) / 8; // Converts from kbs to bit/s
 
-startTime = getCurrentTimeInSeconds();
+// Create file stream for saving
+console.log(filename);
+fileStream = fs.createWriteStream(filename);
 
+// Start network stream
+networkStream = request
+					.get(url)
+					.pipe(new throttle.Throttle({rate:recordingBitrate}))
+					.pipe(fileStream);
+
+// Start stream timer
+startTime = getCurrentTimeInSeconds();
 setInterval(printElapsedTime, 500);
 
-// User Input Checking
-
-if (url === true || !validUrl.isUri(url)){
-	console.log('Stream URL is not valid');
-	process.exit(1);
-}
-
-if(filename === true || filename === ""){
-	console.log("Filename must not be empty");
-	process.exit(1);
-}
-
-if(bitrate === true || isNaN(Number(bitrate))){
-	console.log("Bitrate must be a number");
-	process.exit(1);
-}
-
-if(duration && (duration === true || isNaN(Number(duration)))){
-	console.log("Duration must be a number");
-	process.exit(1);
-}
-
-filename = makeAbsoluteFilepath(filename);
+// Close up the file stream when stream is finished
+networkStream.on('end',function(){
+	fileStream.end();
+});
+// Handle network streaming errors
+networkStream.on('error', function(err) {
+	console.log('something is wrong :( ');
+	console.log(err);
+	fileStream.close();
+});
 
 
 // 
@@ -65,7 +98,7 @@ function makeAbsoluteFilepath(filename){
 	filename = path.normalize(filename);
 	if(!path.isAbsolute(filename)){
 		// Make filename absolute, if it isn't already
-		abs = process.cwd() + filename;
+		abs = process.cwd() + "/" + filename;
 	}
 	else{
 		abs = filename;
@@ -97,12 +130,29 @@ function printTime(time){
 }
 
 function printElapsedTime(){
-	printTime(getCurrentTimeInSeconds() - startTime);
+	var elapsedTime = getCurrentTimeInSeconds() - startTime;
+	if(duration == elapsedTime){
+		stopRecording();
+	}
+	printTime(elapsedTime);
 }
 
 //
 // Cleanup functions
-// 
+//
+
+function error(message){
+	console.log("ERROR: "+ message);
+	console.log("\n" + yargs.help());
+	process.exit(1);
+}
+
+function stopRecording(){
+	if(networkStream){
+		networkStream.end();
+	}
+	process.exit();
+}
 
 process.on('exit',function(){
 	process.stdout.write("\n");
