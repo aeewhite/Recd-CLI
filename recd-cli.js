@@ -3,10 +3,15 @@
 // Argument Parsing
 var argv	= require('yargs')
 				.usage('Usage: $0 -u [streamUrl] -f [filename] -b [bitrate] -d [minutes]')
+				.alias('f','file')
+				.alias('u','url')
+				.alias('b', 'bitrate')
+				.alias('d','duration')
 				.demand(['u','f','b'])
 				.argv,
 	cursor	= require('ansi')(process.stdout),
-	path 	= require('path');
+	path 	= require('path'),
+	validUrl = require('valid-url');
 
 
 var url			= argv.u,
@@ -27,10 +32,25 @@ startTime = getCurrentTimeInSeconds();
 
 setInterval(printElapsedTime, 500);
 
-// Do some checking of the user inputs
+// User Input Checking
+
+if (url === true || !validUrl.isUri(url)){
+	console.log('Stream URL is not valid');
+	process.exit(1);
+}
 
 if(filename === true || filename === ""){
 	console.log("Filename must not be empty");
+	process.exit(1);
+}
+
+if(bitrate === true || isNaN(Number(bitrate))){
+	console.log("Bitrate must be a number");
+	process.exit(1);
+}
+
+if(duration && (duration === true || isNaN(Number(duration)))){
+	console.log("Duration must be a number");
 	process.exit(1);
 }
 
