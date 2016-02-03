@@ -131,10 +131,10 @@ function printTime(time){
 
 function printElapsedTime(){
 	var elapsedTime = getCurrentTimeInSeconds() - startTime;
-	if(duration == elapsedTime){
+	printTime(elapsedTime);
+	if(duration < (elapsedTime / 60)){
 		stopRecording();
 	}
-	printTime(elapsedTime);
 }
 
 //
