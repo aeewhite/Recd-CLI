@@ -1,6 +1,6 @@
 {
   "name": "rec'd-cli",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A commandline audio stream recorder",
   "main": "recd-cli.js",
   "keywords": [
@@ -13,5 +13,9 @@
     "stream-throttle": "^0.1.3",
     "valid-url": "^1.0.9",
     "yargs": "^3.32.0"
+  },
+  "preferGlobal": true,
+  "bin":{
+    "recd-cli": "recd-cli.js"
   }
 }
