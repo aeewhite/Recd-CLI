@@ -1,8 +1,7 @@
 {
-  "name": "rec'd-cli",
+  "name": "recd-cli",
   "version": "1.0.0",
-  "description": "A commandline audio stream recorder",
-  "main": "recd-cli.js",
+  "description": "A command-line audio stream recorder",
   "keywords": [
     "mp3"
   ],
@@ -17,5 +16,9 @@
   "preferGlobal": true,
   "bin":{
     "recd-cli": "recd-cli.js"
+  },
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/aeewhite/Recd-CLI.git"
   }
 }
