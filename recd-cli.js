@@ -3,10 +3,10 @@
 // Argument Parsing
 var yargs	 = require('yargs')
 				.usage('Usage: $0 -u [streamUrl] -f [filename] -b [bitrate] -d [minutes]')
-				.alias('f','file')
-				.describe('f','path to file')
 				.alias('u','url')
 				.describe('u','URL of mp3 stream')
+				.alias('f','file')
+				.describe('f','path to file')
 				.alias('b', 'bitrate')
 				.describe('b', 'bitrate in kbs')
 				.alias('d','duration')
