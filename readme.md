@@ -1,6 +1,6 @@
 # Rec'd-CLI
 
-`rec'd-cli` is a command line utility written in node.js for recording mp3 streams to disk. The name comes from another project [Rec'd](https://github.com/aeewhite/Recd), which is basically a GUI for the same purpose.
+`recd-cli` is a command line utility written in node.js for recording mp3 streams to disk. The name comes from another project [Rec'd](https://github.com/aeewhite/Recd), which is basically a GUI for the same purpose.
 
 ## Installation
 
