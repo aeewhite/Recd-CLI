@@ -8,7 +8,7 @@ Requires node and npm, then  `npm install -g recd-cli`
 
 ## Usage
 
-Usage details can be found with `recd-cli -h`
+Usage details can be found with `recd-cli --help`
 
 ```
 Usage: recd-cli -u [streamUrl] -f [filename] -b [bitrate] -d [minutes]
