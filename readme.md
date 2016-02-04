@@ -11,14 +11,17 @@ Requires node and npm, then  `npm install -g recd-cli`
 Usage details can be found with `recd-cli --help`
 
 ```
-Usage: recd-cli -u [streamUrl] -f [filename] -b [bitrate] -d [minutes]
+$ recd-cli --help                                              
+Usage: recd-cli.js (-u [streamUrl] | -m [m3uFile]) -f [filename] -b [bitrate] -d [minutes]
 
 Options:
-  -u, --url       URL of mp3 stream                             [required]
-  -f, --file      path to file                                  [required]
-  -b, --bitrate   bitrate in kbs                                [required]
+  -u, --url       URL of mp3 stream
+  -m, --m3u       path to m3u playlist file
+  -f, --file      path to file                                        [required]
+  -b, --bitrate   bitrate in kbs                                      [required]
   -d, --duration  Duration to record, in minutes
-  -h, --help      Show help                                      [boolean]
+  -h, --help      Show help                                            [boolean]
+
 
 ```
 
