@@ -1,28 +1,46 @@
 #!/usr/bin/env node
 
 // Argument Parsing
-var yargs	 = require('yargs')
-				.usage('Usage: $0 -u [streamUrl] -f [filename] -b [bitrate] -d [minutes]')
-				.alias('u','url')
-				.describe('u','URL of mp3 stream')
-				.alias('f','file')
-				.describe('f','path to file')
-				.alias('b', 'bitrate')
-				.describe('b', 'bitrate in kbs')
-				.alias('d','duration')
-				.describe('d','Duration to record, in minutes')
-				.help('h')
-				.alias('h','help')
-				.demand(['u','f','b']),
-	cursor	 = require('ansi')(process.stdout),
-	path 	 = require('path'),
-	validUrl = require('valid-url'),
-	fs		 = require('fs'),
-	request	 = require('request');
-	throttle = require('stream-throttle');
+var yargs	 	= require('yargs')
+					.usage('Usage: $0 (-u [streamUrl] | -m [m3uFile]) -f [filename] -b [bitrate] -d [minutes]')
+					.alias('u','url')
+					.describe('u','URL of mp3 stream')
+					.alias('m','m3u')
+					.describe('m','path to m3u playlist file')
+					.alias('f','file')
+					.describe('f','path to file')
+					.alias('b', 'bitrate')
+					.describe('b', 'bitrate in kbs')
+					.alias('d','duration')
+					.describe('d','Duration to record, in minutes')
+					.help('h')
+					.alias('h','help')
+					.demand(['f','b']),
+	cursor	 	= require('ansi')(process.stdout),
+	path 	 	= require('path'),
+	validUrl 	= require('valid-url'),
+	fs		 	= require('fs'),
+	request	 	= require('request');
+	throttle 	= require('stream-throttle');
+
+
+
+// Require either url or m3u, but not both
+var src;
+if(yargs.argv.u && yargs.argv.m){
+	error('Options -u and -m are mutually exclusive');
+}
+else if (!(yargs.argv.u || yargs.argv.m)){
+	error('Must supply either -u or -m option');
+}
+else{
+	if(yargs.argv.u) src = "url";
+	if(yargs.argv.m) src = "m3u";
+}
 
 
 var url			= yargs.argv.u,
+	m3u 		= yargs.argv.m,
 	filename	= yargs.argv.f,
 	bitrate		= yargs.argv.b,
 	duration	= yargs.argv.d;
@@ -31,7 +49,18 @@ var url			= yargs.argv.u,
 // User Input Checking
 //
 
-if (url === true || !validUrl.isUri(url)){
+
+// Parse the url from the m3u
+if(src == "m3u" && (m3u === true || m3u === "")){
+	error("m3u path must not be empty");
+}
+
+if(src == "m3u"){
+	m3u = makeAbsoluteFilepath(m3u);
+	url = fs.readFileSync(m3u).toString().split('\n')[0].trim();
+}
+
+if(url === true || !validUrl.isUri(url)){
 	error('Stream URL is not valid');
 }
 
@@ -48,6 +77,7 @@ if(duration && (duration === true || isNaN(Number(duration)))){
 }
 
 filename = makeAbsoluteFilepath(filename);
+
 
 
 // 
